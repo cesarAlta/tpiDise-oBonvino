@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="537.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bonvino.bonvino.Views.PantallaActualizacionVino">
+   <children>
+      <Pane prefHeight="66.0" prefWidth="600.0" style="-fx-background-color: #5c0a33;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label alignment="CENTER" layoutX="250.0" layoutY="19.0" text="Actualizacion de vinos de bodega" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="19.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <AnchorPane fx:id="paneSeleccionBodega" prefHeight="537.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox fx:id="bodegasDisponiblesVB" alignment="TOP_CENTER" layoutX="173.0" layoutY="103.0" prefHeight="330.0" prefWidth="454.0">
+               <children>
+                  <Label text="Bodegas disponibles para actualizar">
+                     <font>
+                        <Font name="System Bold" size="25.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            <Button fx:id="btnCancelarActualizacionBodegas" defaultButton="true" layoutX="476.0" layoutY="475.0" mnemonicParsing="false" onAction="#onCancelar" pickOnBounds="false" style="-fx-border-radius: 20px; -fx-background-radius: 20px; -fx-background-color: #6a6a6a;" text="Cancelar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Button fx:id="btnActualizarBodega" defaultButton="true" layoutX="565.0" layoutY="475.0" mnemonicParsing="false" onAction="#tomarSeleccionBodegaPteActualizar" pickOnBounds="false" style="-fx-border-radius: 20px; -fx-background-radius: 20px; -fx-background-color: #5DADE2;" text="Buscar actualizaciones" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="vinoContainer" layoutX="6.0" layoutY="65.0" prefHeight="466.0" prefWidth="790.0" visible="false">
+         <children>
+            <ScrollPane focusTraversable="false" layoutX="106.0" layoutY="79.0" prefHeight="308.0" prefWidth="578.0" style="-fx-border-color: transparent; -fx-background-insets: 0;">
+              <content>
+                <AnchorPane fx:id="scrollPane" />
+              </content>
+            </ScrollPane>
+            <Label fx:id="textBodegaSeleccionada" layoutX="106.0" layoutY="41.0" text="bodega...." underline="true">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <Button fx:id="btnTerminar" defaultButton="true" layoutX="599.0" layoutY="399.0" mnemonicParsing="false" onAction="#onFinalizar" pickOnBounds="false" style="-fx-border-radius: 20px; -fx-background-radius: 20px; -fx-background-color: #5DADE2;" text="Terminar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="errorNoSeleccionBodega" layoutX="268.0" layoutY="227.0" prefHeight="537.0" prefWidth="800.0" style="-fx-background-color: rgba(0, 0, 0, 0.2);" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Pane fx:id="paneError" layoutX="266.0" layoutY="227.0" prefHeight="100.0" prefWidth="270.0" style="-fx-border-width: 1; -fx-border-color: red; -fx-border-radius: 20; -fx-background-radius: 20; -fx-background-color: white;" AnchorPane.bottomAnchor="210.0" AnchorPane.topAnchor="226.60000000000002">
+               <children>
+                  <Label fx:id="labelError" layoutX="16.0" layoutY="14.0" text="Seleccione una bodega!">
+                     <font>
+                        <Font name="System Bold" size="21.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="btnCerrarAviso" alignment="BOTTOM_CENTER" defaultButton="true" layoutX="100.0" layoutY="53.0" mnemonicParsing="false" onAction="#onbtnCerrarAvisoNoSelecBodega" pickOnBounds="false" style="-fx-border-radius: 20px; -fx-background-radius: 20px; -fx-background-color: #6a6a6a;" text="Cerrar" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+            </Pane>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="errorSinBodegaDisponible" layoutX="278.0" layoutY="237.0" prefHeight="774.6" prefWidth="1078.0" style="-fx-background-color: rgba(0, 0, 0, 0.2);" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Pane layoutX="161.0" layoutY="210.0" prefHeight="118.0" prefWidth="478.0" style="-fx-border-width: 1; -fx-border-color: red; -fx-border-radius: 20; -fx-background-radius: 20; -fx-background-color: white;" AnchorPane.bottomAnchor="209.20000000000005" AnchorPane.topAnchor="210.0">
+               <children>
+                  <Label layoutX="13.0" layoutY="21.0" text="No hay bodegas con actualizacíon disponible!">
+                     <font>
+                        <Font name="System Bold" size="21.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="btnCerrarAvisoSinBodegasDisponible" alignment="BOTTOM_CENTER" defaultButton="true" layoutX="206.0" layoutY="75.0" mnemonicParsing="false" pickOnBounds="false" style="-fx-border-radius: 20px; -fx-background-radius: 20px; -fx-background-color: #6a6a6a;" text="Cerrar" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+            </Pane>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="errorAniSinResp" layoutX="288.0" layoutY="247.0" prefHeight="1022.2" prefWidth="1366.4" style="-fx-background-color: rgba(0, 0, 0, 0.2);" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Pane layoutX="189.0" layoutY="202.0" prefHeight="133.0" prefWidth="422.0" style="-fx-border-width: 1; -fx-border-color: red; -fx-border-radius: 20; -fx-background-radius: 20; -fx-background-color: white;" AnchorPane.bottomAnchor="202.0" AnchorPane.topAnchor="202.0">
+               <children>
+                  <Button fx:id="btnCerrarErrorApi" alignment="BOTTOM_CENTER" defaultButton="true" layoutX="164.0" layoutY="88.0" mnemonicParsing="false" pickOnBounds="false" style="-fx-border-radius: 20px; -fx-background-radius: 20px; -fx-background-color: #6a6a6a;" text="Cerrar" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Text fx:id="textErrorApi" layoutX="28.0" layoutY="39.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="364.25455932617183">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Text>
+               </children>
+            </Pane>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

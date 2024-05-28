@@ -1,0 +1,86 @@
+
+.rounded-pill {
+    -fx-text-fill: white;
+    -fx-padding: 3px 7px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-size: 10px;
+}
+.item-plus:hover{
+    -fx-padding: 3px 7px;
+    -fx-border-color:black;
+    -fx-border-radius: 20px;
+    -fx-cursor:HAND;
+}
+.item-select{
+    -fx-padding: 3px 7px;
+    -fx-border-color:black;
+    -fx-border-radius: 20px;
+}
+
+.info-vino{
+    -fx-padding: 5px;
+    -fx-border-color:black;
+    -fx-border-radius: 10px;
+}
+
+.actualizado{
+    -fx-background-color: #A5A5A5;
+    -fx-font-weight: bold;
+}
+
+.nuevo{
+    -fx-background-color: #5DADE2;
+    -fx-font-weight: bold;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-padding: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+.card-bodega{
+    -fx-background-color: white;
+    -fx-padding: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+
+}
+.card-bodega:hover{
+    -fx-border-radius: 10px;
+    -fx-border-color: #5e3333;
+    -fx-cursor:HAND;
+}
+.select{
+    -fx-border-radius: 10px;
+    -fx-border-color: #5e3333;
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.card-description {
+    -fx-font-size: 12px;
+}
+.btn-cancel:hover{
+    -fx-border-color: #979B9E;
+        -fx-border-width: 2px;
+
+}
+.btn-ok:hover{
+        -fx-border-color: #85C1E9;
+        -fx-border-width: 2px;
+
+}
+
