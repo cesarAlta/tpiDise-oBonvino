@@ -60,7 +60,7 @@ public class Vino {
                 String notaDeCataBodega,
                 BigDecimal precioARS,
                 Bodega bodega,
-                List<Maridaje> maridaje, Map<TipoUva, Varietal> tipoUvaVarietalDTOMap
+                List<Maridaje> maridaje
     ) {
 
         this.añada = añada;
@@ -72,18 +72,15 @@ public class Vino {
         this.bodega = bodega;
         this.maridajes = maridaje;
 
-        crearVarietal(tipoUvaVarietalDTOMap);
-
 
     }
 
-    public Vino(int añada, String nombre, BigDecimal precioARS, Bodega bodega, List<Maridaje> maridajes, Map<Double, TipoUva> varietal) {
+    public Vino(int añada, String nombre, BigDecimal precioARS, Bodega bodega, List<Maridaje> maridajes) {
         this.añada = añada;
         this.nombre = nombre;
         this.precioARS = precioARS;
         this.bodega = bodega;
         this.maridajes = maridajes;
-        crearVarietals(varietal);
     }
 
     private void crearVarietals(Map<Double, TipoUva> tipoUvaMap) {
@@ -97,8 +94,16 @@ public class Vino {
         }
     }
 
-    private void crearVarietal(Map<TipoUva, Varietal> tipoUvaVarietalDTOMap) {
+    /**
+     * Recibe un Map key:tipouva, value:varietal para saber el tipo de uva a que varietal le pertenece
+     * y asi crear el varietal correspondiente.
+     * @param tipoUvaVarietalDTOMap
+     */
+
+    public void crearVarietal(Map<TipoUva, Varietal> tipoUvaVarietalDTOMap) {
+//        instancio la lista para poder agregar los objetos.
         varietales = new ArrayList<>();
+        //recorro el map
         for (Map.Entry<TipoUva, Varietal> tipoUvaVarietalMap : tipoUvaVarietalDTOMap.entrySet()) {
             Varietal nuevoVarietal = new Varietal(
                     tipoUvaVarietalMap.getValue().getDescripcion(),
@@ -108,6 +113,14 @@ public class Vino {
         }
 
     }
+
+    /**
+     * Comparo, a priori comparo el nombre y la añada del el vino recibido con los datos
+     * actuales del vino en cuestion.
+     * Metodo que se mejorá con la determinacion de un equals.
+     * @param vinoRecibido, tipo vino
+     * @return true  si el nombre y añáda corresponden al vino en cuestion.
+     */
 
     public boolean sosEsteVino(Vino vinoRecibido) {
        return  vinoRecibido.getNombre().equals(nombre) && vinoRecibido.getAñada() == this.añada;

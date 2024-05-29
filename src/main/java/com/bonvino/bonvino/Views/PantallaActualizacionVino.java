@@ -22,14 +22,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class PantallaActualizacionVino {
 
-    Bodega bodegaSeleccionada;
+    String bodegaSeleccionada;
     //    Inyecto el gestorActualizacionVino
     @Autowired
     GestorActualizacionVIno gestorActualizacionVino;
@@ -74,15 +72,21 @@ public class PantallaActualizacionVino {
     Text textErrorApi;
     @FXML
     AnchorPane errorAniSinResp;
+    @FXML
+    AnchorPane vinoContainer;
+    @FXML
+    AnchorPane scrollPane;
+    @FXML
+    Label labelError;
 
 
-
+//habilitar pantalla
     @FXML
     public void initialize() {
 
-        gestorActualizacionVino.OpionImportarActualizacionVino(this);
+        gestorActualizacionVino.opcionImportarActualizacionVinos(this);
 
-//      asiglo estilos a lo botones
+//      asigno estilos a lo botones
 
         btnCancelarActualizacionBodegas.getStyleClass().add("btn-cancel");
         btnCerrarAviso.getStyleClass().add("btn-cancel");
@@ -94,7 +98,13 @@ public class PantallaActualizacionVino {
 
     }
 
-    public void mostrarbodegasActaulizables(List<Bodega> bodegaList) {
+    /**
+     * Genera un Hbox con estilos  para mostra una lista con nombres de las bodegas recibidas.
+     * En caso de no haber bodegas muestra un mensaje y una opción para cerrar la ventana.     *
+     * @param bodegaList Set String con nombres de bodegas.
+     */
+
+    public void mostrarBodegasActualizables(Set<String> bodegaList) {
         if (bodegaList.isEmpty()) {
             errorSinBodegaDisponible.setVisible(true);
             paneSeleccionBodega.setVisible(false);
@@ -109,19 +119,20 @@ public class PantallaActualizacionVino {
 
         } else {
             bodegasDisponiblesVB.setSpacing(10);
-
-            for (Bodega bodega : bodegaList) {
+// por cada bodega genra un HBox y da estilos y se lo agrega a un VBox para ser mostrado
+            for (String bodegaNombre : bodegaList) {
                 HBox bodegaHB = new HBox();
                 bodegaHB.getStyleClass().add("card-bodega");
                 Label l = new Label();
-                l.setText(bodega.getNombre());
+                l.setText(bodegaNombre);
+
                 bodegaHB.setOnMouseClicked(
                         e -> {
                             if (bodegaHB.getStyleClass().contains("select")) {
                                 bodegaHB.getStyleClass().remove("select");
                                 bodegaSeleccionada = null;
                             } else {
-                                bodegaSeleccionada = bodega;
+                                bodegaSeleccionada = bodegaNombre;
                                 bodegaHB.getStyleClass().add("select");
                             }
                         }
@@ -132,9 +143,9 @@ public class PantallaActualizacionVino {
             }
         }
 
-
     }
-
+//    Envia al gestor la bodega seleccionada. En caso de que no se sellecione ninguna muestra un aviso.
+    @FXML
     public void tomarSeleccionBodegaPteActualizar() {
         if (bodegaSeleccionada == null) {
             errorNoSeleccionBodega.setVisible(true);
@@ -144,12 +155,6 @@ public class PantallaActualizacionVino {
 
     }
 
-    @FXML
-    AnchorPane vinoContainer;
-    @FXML
-    AnchorPane scrollPane;
-    @FXML
-    Label labelError;
 
     public void mostrarResumenVinosimportados(List<Vino> actualizados, int cantActualizados, List<Vino> vinosCreados, int cantCreados, String nombreBodega) {
 

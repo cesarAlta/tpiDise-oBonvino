@@ -1,18 +1,14 @@
 package com.bonvino.bonvino;
 
 import com.bonvino.bonvino.Models.*;
-import com.bonvino.bonvino.Repositories.IBodegaRepository;
 import com.bonvino.bonvino.Repositories.IEnofiloRepository;
-import com.bonvino.bonvino.Repositories.IMaridajeRepository;
 import com.bonvino.bonvino.Repositories.IVinoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,28 +30,28 @@ public class init implements ApplicationListener<ContextRefreshedEvent> {
                 .descripcion("Descripcion - Bodega Luigi Bosca")
                 .historia("Historia -  Bodega Luigi Bosca")
                 .nombre("Bodega Luigi Bosca")
-                .periodoActializacion(2)
+                .periodoActualizacion(2)
                 .ultimaActualizacion(LocalDate.now().minusMonths(3))
                 .build(), Bodega.builder()
                 .coordenadasUbicacion(new String[]{"-33.047238", "-71.612686"})
                 .descripcion("Descripcion - Viña Montes")
                 .historia("Historia - Viña Montes")
                 .nombre("Viña Montes")
-                .periodoActializacion(1)
+                .periodoActualizacion(1)
                 .ultimaActualizacion(LocalDate.now().minusMonths(1))
                 .build(), Bodega.builder()
                 .coordenadasUbicacion(new String[]{"42.340346", "-3.698567"})
                 .descripcion("Descripcion - Bodega Marques de Riscal")
                 .historia("Historia - Bodega Marques de Riscal")
                 .nombre("Bodega Marques de Riscal")
-                .periodoActializacion(3)
+                .periodoActualizacion(3)
                 .ultimaActualizacion(LocalDate.now().minusMonths(4))
                 .build(), Bodega.builder()
                 .coordenadasUbicacion(new String[]{"49.425409", "8.087328"})
                 .descripcion("Descripcion - Weingut Dr. Loosen")
                 .historia("Historia - Weingut Dr. Loosen")
                 .nombre("Weingut Dr. Loosen")
-                .periodoActializacion(3)
+                .periodoActualizacion(3)
                 .ultimaActualizacion(LocalDate.now().minusMonths(4))
                 .build());
 
@@ -73,7 +69,6 @@ public class init implements ApplicationListener<ContextRefreshedEvent> {
                         )),
                 new Vino(2018, "Cabernet Sauvignon", BigDecimal.valueOf(4500),
                         bodegas.get(0),
-
                         List.of(
                                 new Maridaje("Queso Azul", "El queso azul se combina bien con vinos tintos intensos como el Cabernet Sauvignon."),
                                 new Maridaje("Filete Mignon", "El filete mignon se marida perfectamente con un vino tinto robusto como el Cabernet Sauvignon."),
