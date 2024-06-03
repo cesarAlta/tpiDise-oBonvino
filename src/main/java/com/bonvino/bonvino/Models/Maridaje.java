@@ -21,9 +21,9 @@ public class Maridaje {
     private String descripcion;
     private String nombre;
 
-    @ManyToMany(mappedBy = "maridajes")
-    @JsonIgnore
-    private List<Vino> vinos = new ArrayList<>();
+//    @ManyToMany(mappedBy = "maridajes")
+//    @JsonIgnore
+//    private List<Vino> vinos = new ArrayList<>();
 
 
     public Maridaje( String nombre, String descripcion) {
@@ -39,7 +39,7 @@ public class Maridaje {
 
     @Override
     public String toString() {
-        return "Maridaje{" +
+        return "MaridajeDTO{" +
                 "descripcion='" + descripcion + '\'' +
                 ", nombre='" + nombre + '\'' +
                 '}';

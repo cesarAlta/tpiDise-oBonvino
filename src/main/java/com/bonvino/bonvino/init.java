@@ -198,6 +198,7 @@ public class init implements ApplicationListener<ContextRefreshedEvent> {
                             List.of(
                                     new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(3)),
                                     new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(2)),
+                                    new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(0)),
                                     new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(1)))
                     )
                     .build();
@@ -207,7 +208,8 @@ public class init implements ApplicationListener<ContextRefreshedEvent> {
                     .usuario(new Usuario("1234", "AngelL", false))
                     .siguiendoList(
                             List.of(new Siguiendo(LocalDateTime.now().minusMonths(9), bodegas.get(1)),
-                                    new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(2)))
+                                    new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(2)),
+                                    new Siguiendo(LocalDateTime.now().minusMonths(3), bodegas.get(0)))
                     )
                     .build();
             Enofilo e3 = Enofilo.builder()
@@ -221,7 +223,9 @@ public class init implements ApplicationListener<ContextRefreshedEvent> {
                     .apellido("Campazzo")
                     .usuario(new Usuario("1234", "FacuCamp", true))
                     .siguiendoList(
-                            List.of(new Siguiendo(LocalDateTime.now().minusMonths(7), bodegas.get(1)))
+                            List.of(new Siguiendo(LocalDateTime.now().minusMonths(7), bodegas.get(1)),
+                                    new Siguiendo(LocalDateTime.now().minusMonths(7), bodegas.get(0)),
+                                    new Siguiendo(LocalDateTime.now().minusMonths(7), bodegas.get(3)))
                     )
                     .build();
             Enofilo e5 = Enofilo.builder()

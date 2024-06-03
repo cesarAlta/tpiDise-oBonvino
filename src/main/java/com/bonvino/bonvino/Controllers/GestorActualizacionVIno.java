@@ -1,5 +1,9 @@
 package com.bonvino.bonvino.Controllers;
 
+import com.bonvino.bonvino.DTOs.MaridajeDTO;
+import com.bonvino.bonvino.DTOs.VarietalDTO;
+import com.bonvino.bonvino.DTOs.VinoDataDTO;
+import com.bonvino.bonvino.DTOs.VinoInfoDTO;
 import com.bonvino.bonvino.Models.*;
 import com.bonvino.bonvino.Repositories.*;
 import com.bonvino.bonvino.Views.PantallaActualizacionVino;
@@ -15,7 +19,6 @@ import java.util.*;
 
 @Component
 public class GestorActualizacionVIno {
-//    iny dependencias
     @Autowired
     IBodegaRepository iBodegaRepository;
     @Autowired
@@ -30,23 +33,18 @@ public class GestorActualizacionVIno {
     ApiBodega apiBodega;
     @Autowired
     EntityManager entityManager;
-//    atributos
     private PantallaActualizacionVino pantallaActualizacionVino;
-    private  LocalDateTime fechaActual;
-    private  Map<String, Bodega> bodegaNombreBodegaMap;
-    //    vinos recibidos desde la api
-    private  List<Vino> vinosRecibidos;
-    //    vinos registrados de la bodega seleccionada.
+    private LocalDateTime fechaActual;
+    private Map<String, Bodega> bodegaNombreBodegaMap;
+    private List<VinoDataDTO> vinosRecibidos;
     private List<Vino> vinosBodegaSeleccionada;
-    //    vinos para actualizar.
     private List<Vino> vinoActualizableList;
-
     private Bodega bodegaSeleccionada;
 
 
     /**
      * Inicia el proceso de actualizacion de vinos.
-     *
+     * <p>
      * Establece la dependencia con la pantalla de ACTUALIZACION VINO, e
      * inicia el proceso de importacion para la actualizacion de vinos.
      *
@@ -75,8 +73,8 @@ public class GestorActualizacionVIno {
 
 
         // Alternaivo A1
-//      List<Bodega> sinBodega = new ArrayList<>();
-//      pantallaActualizacionVino.mostrarbodegasActaulizables(sinBodega);
+//      Set<String> sinBodega = new HashSet<>();
+//      pantallaActualizacionVino.mostrarBodegasActualizables(sinBodega);
 
         pantallaActualizacionVino.mostrarBodegasActualizables(bodegaNombreBodegaMap.keySet());
 
@@ -84,33 +82,30 @@ public class GestorActualizacionVIno {
 
     /**
      * Obtiene la fecha y hora actual, y la setea al atributo 'fechaActual'
-     * */
+     */
     private void getFechaActual() {
         fechaActual = LocalDateTime.now();
     }
 
     /**
      * Recibe la bodega seleccionada e inicia el proceso de actualizacion - creacion de vinos.
+     *
      * @param nombreBodegaSel type string
      */
     @Transactional
     public void tomarSeleccionBodegaPteActualizar(String nombreBodegaSel) {
-//        obtengo el objeto del map.
-        this.bodegaSeleccionada =  this.bodegaNombreBodegaMap.get(nombreBodegaSel);
-//        hago disponible la bodega seleccionada en el manejador.
+        this.bodegaSeleccionada = this.bodegaNombreBodegaMap.get(nombreBodegaSel);
         this.bodegaSeleccionada = entityManager.merge(bodegaSeleccionada);
         obtenerActualizacionesBodegaSeleccionada();
     }
 
-    // obtengo actualizacion de la api.
     private void obtenerActualizacionesBodegaSeleccionada() {
         Map<String, Object> respApiVinos = apiBodega.solicitarActualizacionVinos(bodegaSeleccionada);
         // Alternativa CU5 A3.
         if (respApiVinos.containsKey("error")) {
             pantallaActualizacionVino.SinRespuestaApi(respApiVinos.get("error").toString());
         } else {
-//            casteo directamente porque el tipo que se espera recibir es una lista de vino.
-                vinosRecibidos = (List<Vino>) respApiVinos.get("vinos");
+            vinosRecibidos = (List<VinoDataDTO>) respApiVinos.get("vinos");
             actualizarNovedadesVinos();
         }
 
@@ -122,18 +117,15 @@ public class GestorActualizacionVIno {
      */
     private void actualizarNovedadesVinos() {
         vinosBodegaSeleccionada = iVinoRepository.findByBodega(bodegaSeleccionada);
+        vinoActualizableList = new ArrayList<>();
 
-//        vinoBodegaSeleccionadaList = new ArrayList<>(iVinoRepository.findAll()
-//                .stream()
-//                .filter(v -> v.sosDeEstaBodega(bodegaSeleccionada))
-//                .toList());
+        for (VinoDataDTO vinoData : vinosRecibidos) {
+            bodegaSeleccionada.esTuVino(vinoData.getNombre(), vinoData.getAñada(), vinosBodegaSeleccionada)
+                    .ifPresent(v -> {
+                        vinoActualizableList.add(v);
+                        vinoData.setActualizable(true);
+                    });
 
-//        Recorro los vinos recibidos para saber cual es actualizables.
-        for (Vino vinoRecibido : vinosRecibidos) {
-            if (bodegaSeleccionada.esTuVino(vinoRecibido, vinosBodegaSeleccionada)) {
-                if (vinoActualizableList == null) vinoActualizableList = new ArrayList<>();
-                vinoActualizableList.add(vinoRecibido);
-            }
         }
         actualizarOCrearVinoBodega();
     }
@@ -146,22 +138,19 @@ public class GestorActualizacionVIno {
     private void actualizarOCrearVinoBodega() {
         List<Vino> creados = new ArrayList<>();
 
-        for (Vino vinoRecibido : vinosRecibidos) {
-            if (vinoActualizableList.contains(vinoRecibido)) {
-                actualizarVinoExistente(vinoRecibido, vinosBodegaSeleccionada);
+        for (VinoDataDTO vinoRecibido : vinosRecibidos) {
+            if (vinoRecibido.isActualizable()) {
+                actualizarVinoExistente(vinoRecibido, vinoActualizableList);
             } else {
-                Vino v = crearVinoNuevo(vinoRecibido);
-//               a los vinos de la bodega le agrego el vino creado.
+                Vino v = crearVino(vinoRecibido);
                 vinosBodegaSeleccionada.add(v);
                 creados.add(v);
             }
         }
-//seteo la ultima actualizacion de la bodega seleccionada.
-        bodegaSeleccionada.setUltimaActualizacion(fechaActual.toLocalDate());
-//guardo en la bd a travez de jpa.
+        bodegaSeleccionada.setFechaUltimaActualizacion(fechaActual.toLocalDate());
         iVinoRepository.saveAll(vinosBodegaSeleccionada);
 
-        ordenarInformacionAMostrar(creados);
+        ordenarInformacionAMostrar();
 
     }
 
@@ -171,37 +160,85 @@ public class GestorActualizacionVIno {
      * para que se actualicen los datos actualizables del vino.
      * SI BIEN EL GESTOR ES EL QUE TIENE LOS DATOS PARA ACTUALIZAR EL VINO EN CUESTION DELEGA ESTA
      * ACCION A LA BODEGA, ASI REDUCE ACOPLAMIENTO. PATRON EXPERTO EN INFORMACION.
+     *
      * @param vinoRecibido
      * @param vinoBodegaSeleccionadaList
      */
-    private void actualizarVinoExistente(Vino vinoRecibido, List<Vino> vinoBodegaSeleccionadaList) {
-        bodegaSeleccionada.actualizarDatosVino(vinoRecibido, vinoBodegaSeleccionadaList, fechaActual);
+    private void actualizarVinoExistente(VinoDataDTO vinoRecibido, List<Vino> vinoBodegaSeleccionadaList) {
+
+        Map<String, Object> vinoDataMap =
+                Map.of(
+                        "nombre", vinoRecibido.getNombre(),
+                        "añada", vinoRecibido.getAñada(),
+                        "imagenEtiqueta", vinoRecibido.getImagenEtiqueta(),
+                        "notaDeCataBodega", vinoRecibido.getNotaDeCataBodega(),
+                        "precioARS", vinoRecibido.getPrecioARS()
+                );
+
+        bodegaSeleccionada.actualizarDatosVino(vinoDataMap, vinoBodegaSeleccionadaList, fechaActual);
     }
 
 
-    private void ordenarInformacionAMostrar(List<Vino> vinosCreados) {
-        List<Vino> actualizados = vinosBodegaSeleccionada.stream().filter(v -> !vinosCreados.contains(v)).toList();
-        pantallaActualizacionVino.mostrarResumenVinosimportados(actualizados, vinosCreados.size(), vinosCreados, vinosCreados.size(), bodegaSeleccionada.getNombre());
-//        luego vamos a notificar a los enofilos.
-        obtenerSeguidoresBodega(actualizados, vinosCreados.size(), vinosCreados, vinosCreados.size(), bodegaSeleccionada.getNombre());
+    private void ordenarInformacionAMostrar() {
+        List<VinoInfoDTO> vinoInfoDTOS = new ArrayList<>();
+
+        int vinosActualizados = 0;
+        int vinosNuevos = 0;
+
+        for (Vino v : vinosBodegaSeleccionada) {
+            if (v.getFechaActualizacion() != null) {
+                vinosActualizados++;
+            } else {
+                vinosNuevos++;
+            }
+
+            vinoInfoDTOS.add(
+                    VinoInfoDTO.builder()
+                            .nombreYañada(v.getNombre() + "-" + v.getAñada())
+                            .imagenEtiqueta(v.getImagenEtiqueta())
+                            .notaCataDeBodega(v.getNotaDeCataBodega())
+                            .varietalPrincipal(v.getVarietales()
+                                    .stream()
+                                    .max(Comparator.comparingDouble(Varietal::getPorcentajeComposicion))
+                                    .map(vari -> vari.getTipoUva().getNombre())
+                                    .orElse("No se pudo cargar el varietal principal"))
+                            .varietales(
+                                    v.getVarietales().stream().map(
+                                            vari -> vari.getTipoUva().getNombre() + " " + vari.getPorcentajeComposicion() + " %"
+                                    ).toList())
+                            .maridajes(
+                                    v.getMaridajes().stream().map(
+                                            m -> m.getNombre() + ": " + m.getDescripcion()
+                                    ).toList()
+                            )
+                            .fechaActualizacion(v.getFechaActualizacion() != null ? v.getFechaActualizacion() : null)
+                            .nombreBodeda(v.getBodega().getNombre())
+                            .precio(v.getPrecioARS().toString())
+                            .build()
+            );
+
+        }
+
+        pantallaActualizacionVino.mostrarResumenVinosimportados(vinoInfoDTOS, bodegaSeleccionada.getNombre());
+
+        obtenerSeguidoresBodega(vinosActualizados, vinosNuevos, bodegaSeleccionada.getNombre());
     }
 
 
     /**
      * inica el proceso de notificacion a los enofilos suscriptos a la bodega que se realizo la actualizacion.
-     * @param actualizados
-     * @param size
-     * @param vinosCreados
-     * @param sized
-     * @param nombre
+     *
+     * @param vinosActualizados
+     * @param vinoNuevos
+     * @param nombreBodega
      */
-    private void obtenerSeguidoresBodega(List<Vino> actualizados, int size, List<Vino> vinosCreados, int sized, String nombre) {
-        List<String> usuariosANotificar = iEnofiloRepository.findAll() //obtengo todos los enofilos.
-                .stream() // Uso la libreria de stream para recorrer la lista de usuarios.
-                .filter(e -> e.seguisABodega(bodegaSeleccionada)) // Filtro a los seguidores de las bodegas.
-                .map(Enofilo::getNombreUsuario) // mapeo para obtener el nombre de usuario.
-                .toList(); // convierto en lista.
-        InterfazNotificacionPush.NotificarNovedadesAEnofiloSuscriptosBodega(actualizados, vinosCreados.size(), vinosCreados, vinosCreados.size(), bodegaSeleccionada.getNombre(), usuariosANotificar);
+    private void obtenerSeguidoresBodega(int vinosActualizados, int vinoNuevos, String nombreBodega) {
+        List<String> usuariosANotificar = iEnofiloRepository.findAll()
+                .stream()
+                .filter(e -> e.seguisABodega(bodegaSeleccionada))
+                .map(Enofilo::getNombreUsuario)
+                .toList();
+        InterfazNotificacionPush.NotificarNovedadesAEnofiloSuscriptosBodega(vinosActualizados, vinoNuevos, bodegaSeleccionada.getNombre(), usuariosANotificar);
 
         finCU();
 
@@ -214,61 +251,48 @@ public class GestorActualizacionVIno {
      * varietales y se lo envia al vino para que este lo realice.
      * El vino ademas tiene  una relacion de 1..* esto significa que al crear el vino hay que crear y asignarle al menos un varietal.
      * Vemos el oatron controlador con el patron creador.
+     *
      * @param vinoRecibido
      * @return
      */
 
-    private Vino crearVinoNuevo(Vino vinoRecibido) {
-//        busca los tipos de uva.
-        Map<TipoUva, Varietal> tipoUvaVarietalDTOMap = buscarTipoUva(vinoRecibido.getVarietales());
-
-//        busca los maridaje
+    private Vino crearVino(VinoDataDTO vinoRecibido) {
+        Map<TipoUva, VarietalDTO> tipoUvaVarietalDTOMap = buscarTipoUva(vinoRecibido.getVarietales());
         List<Maridaje> maridaje = buscarMaridaje(vinoRecibido.getMaridajes());
-
-        // Como en el diagram de clases hay una relacion de 0..* podriamos verificar si viene el maridaje
-        // desde la bodega.
-
-//        if(vinoRecibido.getMaridajes()!=null){
-//            maridaje = buscarMaridaje(vinoRecibido.getMaridajes());
-//        }
 
         Vino nuevoVino = new Vino(
                 vinoRecibido.getAñada(),
-                fechaActual,
                 vinoRecibido.getImagenEtiqueta(),
                 vinoRecibido.getNombre(),
                 vinoRecibido.getNotaDeCataBodega(),
                 vinoRecibido.getPrecioARS(),
                 bodegaSeleccionada,
                 maridaje);
-//delego la creacion al vino creado a que cree sus varietales.
+
         nuevoVino.crearVarietal(tipoUvaVarietalDTOMap);
         return nuevoVino;
     }
 
     /**
-     *  Toma los maridajes  del vino recibido, para obtenerlos y setearlos.
-     *  Retorna una lista de maridajes.
+     * Toma los maridajes  del vino recibido, para obtenerlos y setearlos.
+     * Retorna una lista de maridajes.
      * No encuentra el maridaje lanza una excepcion, para el manejo de esta en las proximas versiones.
+     *
      * @param maridajeVinoRecibido
      * @return
      */
 
-    private List<Maridaje> buscarMaridaje(List<Maridaje> maridajeVinoRecibido) {
+    private List<Maridaje> buscarMaridaje(List<MaridajeDTO> maridajeVinoRecibido) {
         List<Maridaje> maridajes = new ArrayList<>();
         List<Maridaje> maridajesExistentes = iMaridajeRepository.findAll();
 
-        for (Maridaje maridajeRecibido : maridajeVinoRecibido) {
+        for (MaridajeDTO maridajeRecibido : maridajeVinoRecibido) {
             Maridaje m = maridajesExistentes
                     .stream()
                     .filter(maridaje -> maridaje.sosMaridaje(maridajeRecibido.getNombre()))
-                    .findFirst().orElseThrow();
+                    .findFirst()
+                    .orElseThrow();
             maridajes.add(m);
-//            for (Maridaje meridaje : maridajesExistentes) {
-//                if (meridaje.sosMaridaje(maridajeRecibido.getNombre())) {
-//                    maridajes.add(meridaje);
-//                }
-//            }
         }
         return maridajes;
     }
@@ -277,30 +301,34 @@ public class GestorActualizacionVIno {
      * Toma los varietales del vino recibido, para obtener el tipo de uva. lo agrega a un
      * Map key:tipoUva, value: Varietal. Para luego retornarlo.
      * No encuentra el tipo uva lanza una excepcion, para el manejo de esta en las proximas versiones.
+     *
      * @param varietalRecibidoList
      * @return
      */
-    private Map<TipoUva, Varietal> buscarTipoUva(List<Varietal> varietalRecibidoList) {
-        Map<TipoUva, Varietal> tipoUvaVarietalDTOMap = new HashMap<>();
+    private Map<TipoUva, VarietalDTO> buscarTipoUva(List<VarietalDTO> varietalRecibidoList) {
+        Map<TipoUva, VarietalDTO> tipoUvaVarietalDTOMap = new HashMap<>();
 
         List<TipoUva> tipoUvaList = iTipoUvaRepository.findAll();
 
-//        por cada varietal recibido, busca el tipo de uva y lo agrega al map
-
-        for (Varietal varietal : varietalRecibidoList) {
+        for (VarietalDTO varietalDTO : varietalRecibidoList) {
             TipoUva tipoUva = tipoUvaList
                     .stream()
-                    .filter(tu -> tu.sosTipoUva(varietal.getTipoUva().getNombre()))
+                    .filter(tu -> tu.sosTipoUva(varietalDTO.getNombreTipoUva()))
                     .findFirst()
                     .orElseThrow();
-
-            tipoUvaVarietalDTOMap.put(tipoUva, varietal);
+            tipoUvaVarietalDTOMap.put(tipoUva, varietalDTO);
         }
         return tipoUvaVarietalDTOMap;
     }
 
-private void finCU(){
+    private void finCU() {
+        vinoActualizableList = null;
+        bodegaSeleccionada = null;
+        vinosRecibidos = null;
+        vinoActualizableList = null;
+        bodegaNombreBodegaMap = null;
 
-}
+
+    }
 
 }

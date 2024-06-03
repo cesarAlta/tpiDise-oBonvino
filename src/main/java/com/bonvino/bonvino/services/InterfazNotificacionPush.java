@@ -12,12 +12,18 @@ import java.util.List;
 public class InterfazNotificacionPush {
 
 
+    public static void NotificarNovedadesAEnofiloSuscriptosBodega(int vinosActualizados, int vinosNuevos, String nombreBodega, List<String> usuariosANotificar) {
+        String nota = vinosActualizados > 1
+                ? "Hay " + vinosActualizados + " vinos actualizados"
+                : "Hay " + vinosActualizados + " vino actualizado";
 
-    public static void NotificarNovedadesAEnofiloSuscriptosBodega(List<Vino> actualizados, int size, List<Vino> vinosCreados, int size1, String nombre, List<String> usuariosANotificar) {
-        String nota = "Hay "+size+" vinos actualizados y "+size1+" vinos nuevos para la bodega "+ nombre;
+        nota += vinosNuevos > 0
+                ? vinosNuevos > 1 ? " y " + vinosNuevos + " vinos nuevos" : " y 1 vino nuevo"
+                : "";
+        nota += " para la bodega " + nombreBodega;
 
-        for (String us: usuariosANotificar) {
-            System.out.println("Notificacion para "+ us + ": "+ nota);
+        for (String us : usuariosANotificar) {
+            System.out.println("Notificacion para " + us + ": " + nota);
         }
     }
 

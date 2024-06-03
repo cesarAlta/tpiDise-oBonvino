@@ -6,10 +6,7 @@ import lombok.Data;
 @Data
 public class VarietalDTO {
     private String descripcion;
-    private float porcentajeComposicon;
-    private TipoUvaDTO tipoUva;
+    private String nombreTipoUva;
+    private double porcentaje;
 
-    public TipoUvaDTO getTypoUva() {
-        return tipoUva;
-    }
 }

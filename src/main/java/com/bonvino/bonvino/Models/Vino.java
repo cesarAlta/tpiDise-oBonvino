@@ -1,5 +1,6 @@
 package com.bonvino.bonvino.Models;
 
+import com.bonvino.bonvino.DTOs.VarietalDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,11 +38,7 @@ public class Vino {
     private List<Varietal> varietales;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "vino_maridaje",
-            joinColumns = @JoinColumn(name = "vino_id"),
-            inverseJoinColumns = @JoinColumn(name = "maridaje_id")
-    )
+
     private List<Maridaje> maridajes;
 
     public Vino(int añada, String nombre, BigDecimal precioARS, Bodega bodega, List<Maridaje> maridajes, List<Varietal> varietalList) {
@@ -54,7 +51,6 @@ public class Vino {
     }
 
     public Vino(int añada,
-                LocalDateTime fechaActualizacion,
                 String imagenEtiqueta,
                 String nombre,
                 String notaDeCataBodega,
@@ -64,7 +60,6 @@ public class Vino {
     ) {
 
         this.añada = añada;
-        this.fechaActualizacion = fechaActualizacion;
         this.imagenEtiqueta = imagenEtiqueta;
         this.nombre = nombre;
         this.notaDeCataBodega = notaDeCataBodega;
@@ -75,39 +70,19 @@ public class Vino {
 
     }
 
-    public Vino(int añada, String nombre, BigDecimal precioARS, Bodega bodega, List<Maridaje> maridajes) {
-        this.añada = añada;
-        this.nombre = nombre;
-        this.precioARS = precioARS;
-        this.bodega = bodega;
-        this.maridajes = maridajes;
-    }
-
-    private void crearVarietals(Map<Double, TipoUva> tipoUvaMap) {
-        varietales = new ArrayList<>();
-        for (Map.Entry<Double, TipoUva> tipoUvaVarietalMap : tipoUvaMap.entrySet()) {
-            Varietal nuevoVarietal = new Varietal(
-                    "Descripcio de " + tipoUvaVarietalMap.getValue().getNombre(),
-                    tipoUvaVarietalMap.getKey(),
-                    tipoUvaVarietalMap.getValue());
-            varietales.add(nuevoVarietal);
-        }
-    }
-
     /**
      * Recibe un Map key:tipouva, value:varietal para saber el tipo de uva a que varietal le pertenece
      * y asi crear el varietal correspondiente.
      * @param tipoUvaVarietalDTOMap
      */
 
-    public void crearVarietal(Map<TipoUva, Varietal> tipoUvaVarietalDTOMap) {
-//        instancio la lista para poder agregar los objetos.
+    public void crearVarietal(Map<TipoUva, VarietalDTO> tipoUvaVarietalDTOMap) {
         varietales = new ArrayList<>();
-        //recorro el map
-        for (Map.Entry<TipoUva, Varietal> tipoUvaVarietalMap : tipoUvaVarietalDTOMap.entrySet()) {
+
+        for (Map.Entry<TipoUva, VarietalDTO> tipoUvaVarietalMap : tipoUvaVarietalDTOMap.entrySet()) {
             Varietal nuevoVarietal = new Varietal(
-                    tipoUvaVarietalMap.getValue().getDescripcion(),
-                    tipoUvaVarietalMap.getValue().getPorcentajeComposicion(),
+                    "Desripcion :" +tipoUvaVarietalMap.getValue().getNombreTipoUva(),
+                    tipoUvaVarietalMap.getValue().getPorcentaje(),
                     tipoUvaVarietalMap.getKey());
             varietales.add(nuevoVarietal);
         }
@@ -117,23 +92,17 @@ public class Vino {
     /**
      * Comparo, a priori comparo el nombre y la añada del el vino recibido con los datos
      * actuales del vino en cuestion.
-     * Metodo que se mejorá con la determinacion de un equals.
-     * @param vinoRecibido, tipo vino
      * @return true  si el nombre y añáda corresponden al vino en cuestion.
      */
 
-    public boolean sosEsteVino(Vino vinoRecibido) {
-       return  vinoRecibido.getNombre().equals(nombre) && vinoRecibido.getAñada() == this.añada;
+    public boolean sosEsteVino(String nombre, int añada) {
+       return  getNombre().equals(nombre) && getAñada() == añada;
     }
 
-    public boolean sosVinoParaActualizar(Vino vinoRecibido) {
-        return  vinoRecibido.getNombre().equals(nombre) && vinoRecibido.getAñada() == this.añada;
-//        return this.equals(vinoRecibido);
+    public boolean sosVinoParaActualizar(String nombre, int añada) {
+        return getNombre().equals(nombre) && getAñada() == añada;
     }
 
-    public boolean sosDeEstaBodega(Bodega bodegaSeleccionada) {
-        return this.bodega.equals(bodegaSeleccionada);
-    }
 
 
 

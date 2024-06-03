@@ -21,6 +21,9 @@ public class IndexController {
     @FXML
     public void opcionImportarVino() throws IOException {
         Stage stage = (Stage) btnImportarVinos.getScene().getWindow(); //obtengo el stage actual
+        habilitarPantalla(stage);
+    }
+    public void habilitarPantalla(Stage stage) throws IOException {
         Parent root = springFXMLLoader.load("/PantallaActualizacionVino.fxml");
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());

@@ -6,9 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 @Data
@@ -39,6 +42,7 @@ public class Bodega {
      * Valida si la bodega esta disponible para obtener actualizacion.
      * Recibe una fecha actual, y verifica que haya pasado desde la ultima actualizacion
      * el priodo de actualizacion.
+     *
      * @param fechaActual type LocalDate.
      * @return boolean.
      */
@@ -49,40 +53,47 @@ public class Bodega {
 
     /**
      * Recibe una lista de vinos, que son propios de la bodega, y el vino que proviene de la api.
-     *
+     * <p>
      * El tipo de vino en este caso es VINO, pero podria otarse por un DTO, en caso de que cambie la API.
      * Retorna true si el vino recibido  es de la bodega seleccionada
-     * @param vinoRecibido a priori de Tipo Vino, podria optarse por un DTO.
-     * @param misVinos lista de los vinos de la bodega seleccionada.
+     *
+     * @param nombre   nombre de un vino recivido a comparar.
+     * @param añada    añada un vino recivido a comparar.
+     * @param misVinos lista de los vinos de la bodega actual.
      * @return boolean .
      */
-    public boolean esTuVino(Vino vinoRecibido, List<Vino> misVinos) {
-//         a cada vino de la bodega seleccionada le pregunto si es el vino recibido
-        for (Vino v : misVinos) {
-            if (v.sosEsteVino(vinoRecibido)) return true;
-        }
-        return false;
+    public Optional<Vino> esTuVino(String nombre, int añada, List<Vino> misVinos) {
+        return misVinos.stream()
+                .filter(v -> v.sosEsteVino(nombre, añada))
+                .findFirst();
     }
 
     /**
      * Actualizar vinos
      * Recorro la lista de vinos de la bodega seleccionada hasta obtener el vino a actualizar
      * seteo los nuevos valores y ademas la fecha de actualizacion.
-     * @param vinoRecibido
-     * @param vinoBodegaSeleccionadaList
-     * @param fechaActual
+     *
+     * @param vinoDataMap key:nombreAtributo vino, value: valorAtributo vino
+     * @param vinoBodegaSeleccionadaList lista de todos los vinos de la bodega seleccionada
+     * @param fechaActual fecha actual.
      */
-
-    public void actualizarDatosVino(Vino vinoRecibido, List<Vino> vinoBodegaSeleccionadaList, LocalDateTime fechaActual) {
-
-        for (Vino vino : vinoBodegaSeleccionadaList) {
-            if (vino.sosVinoParaActualizar(vinoRecibido)) {
-                vino.setPrecioARS(vinoRecibido.getPrecioARS());
-                vino.setImagenEtiqueta(vino.getImagenEtiqueta());
-                vino.setNotaDeCataBodega(vinoRecibido.getNotaDeCataBodega());
-                vino.setFechaActualizacion(fechaActual);
+    public void actualizarDatosVino(
+            Map<String, Object> vinoDataMap,
+            List<Vino> vinoBodegaSeleccionadaList,
+            LocalDateTime fechaActual) {
+        for (Vino vinoDeBodega : vinoBodegaSeleccionadaList) {
+            if (vinoDeBodega.sosVinoParaActualizar((String) vinoDataMap.get("nombre"), Integer.parseInt(vinoDataMap.get("añada").toString()))) {
+                vinoDeBodega.setPrecioARS((BigDecimal) (vinoDataMap.get("precioARS")));
+                vinoDeBodega.setImagenEtiqueta((String) vinoDataMap.get("imagenEtiqueta"));
+                vinoDeBodega.setNotaDeCataBodega((String) vinoDataMap.get("notaDeCataBodega"));
+                vinoDeBodega.setFechaActualizacion(fechaActual);
 
             }
+
         }
+    }
+
+    public void setFechaUltimaActualizacion(LocalDate localDate) {
+        ultimaActualizacion = localDate;
     }
 }

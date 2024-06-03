@@ -2,6 +2,7 @@ package com.bonvino.bonvino.Views;
 
 import com.bonvino.bonvino.Config.SpringFXMLLoader;
 import com.bonvino.bonvino.Controllers.GestorActualizacionVIno;
+import com.bonvino.bonvino.DTOs.VinoInfoDTO;
 import com.bonvino.bonvino.Models.Bodega;
 import com.bonvino.bonvino.Models.Varietal;
 import com.bonvino.bonvino.Models.Vino;
@@ -20,9 +21,11 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 @Component
 public class PantallaActualizacionVino {
@@ -64,7 +67,7 @@ public class PantallaActualizacionVino {
     AnchorPane errorSinBodegaDisponible;
     @FXML
     Button btnCerrarAvisoSinBodegasDisponible;
-//    ...
+    //    ...
     //Atributos mensaje error API
     @FXML
     Button btnCerrarErrorApi;
@@ -80,7 +83,7 @@ public class PantallaActualizacionVino {
     Label labelError;
 
 
-//habilitar pantalla
+    //habilitar pantalla
     @FXML
     public void initialize() {
 
@@ -101,6 +104,7 @@ public class PantallaActualizacionVino {
     /**
      * Genera un Hbox con estilos  para mostra una lista con nombres de las bodegas recibidas.
      * En caso de no haber bodegas muestra un mensaje y una opción para cerrar la ventana.     *
+     *
      * @param bodegaList Set String con nombres de bodegas.
      */
 
@@ -144,7 +148,8 @@ public class PantallaActualizacionVino {
         }
 
     }
-//    Envia al gestor la bodega seleccionada. En caso de que no se sellecione ninguna muestra un aviso.
+
+    //    Envia al gestor la bodega seleccionada. En caso de que no se sellecione ninguna muestra un aviso.
     @FXML
     public void tomarSeleccionBodegaPteActualizar() {
         if (bodegaSeleccionada == null) {
@@ -156,24 +161,37 @@ public class PantallaActualizacionVino {
     }
 
 
-    public void mostrarResumenVinosimportados(List<Vino> actualizados, int cantActualizados, List<Vino> vinosCreados, int cantCreados, String nombreBodega) {
-
-
+    //    public void mostrarResumenVinosimportados(List<Vino> actualizados, int cantActualizados, List<Vino> vinosCreados, int cantCreados, String nombreBodega) {
+//
+//
+//        VBox vinoVBox = new VBox(10); // 10px spacing between cards
+//        vinoVBox.setPadding(new Insets(20));
+//        vinoContainer.setVisible(true);
+//        textBodegaSeleccionada.setText("Bodega " + nombreBodega);
+//
+//        for (Vino v : actualizados) {
+//            HBox card = createVinoCard(v, "act");
+//            vinoVBox.getChildren().add(card);
+//        }
+//
+//        scrollPane.setPrefHeight(155 * actualizados.size());
+//        scrollPane.getChildren().add(vinoVBox);
+//
+//        paneSeleccionBodega.visibleProperty().setValue(false);
+//
+//    }
+    public void mostrarResumenVinosimportados(List<VinoInfoDTO> vinoList, String nombreBodega) {
         VBox vinoVBox = new VBox(10); // 10px spacing between cards
         vinoVBox.setPadding(new Insets(20));
         vinoContainer.setVisible(true);
         textBodegaSeleccionada.setText("Bodega " + nombreBodega);
 
-        for (Vino v : actualizados) {
-            HBox card = createVinoCard(v, "act");
+        for (VinoInfoDTO v : vinoList) {
+            HBox card = createVinoCard(v);
             vinoVBox.getChildren().add(card);
         }
 
-        for (Vino v : vinosCreados) {
-            HBox card = createVinoCard(v, "nuevo");
-            vinoVBox.getChildren().add(card);
-        }
-        scrollPane.setPrefHeight(155 * actualizados.size());
+//        scrollPane.setPrefHeight(155 * actualizados.size());
         scrollPane.getChildren().add(vinoVBox);
 
         paneSeleccionBodega.visibleProperty().setValue(false);
@@ -181,7 +199,7 @@ public class PantallaActualizacionVino {
 
     }
 
-    private HBox createVinoCard(Vino v, String n) {
+    private HBox createVinoCard(VinoInfoDTO v) {
         HBox tarjetaVino = new HBox(10);
         tarjetaVino.setPrefWidth(500);
         tarjetaVino.setPrefHeight(150);
@@ -196,32 +214,44 @@ public class PantallaActualizacionVino {
         card.setPrefWidth(300);
         card.setPrefHeight(100);
 
-        Label title = new Label(v.getNombre() + " - " + v.getAñada());
+        Label title = new Label(v.getNombreYañada());
         title.getStyleClass().add("card-title");
 
-        Label notaCata = new Label(v.getNotaDeCataBodega());
-        notaCata.getStyleClass().add("card-description");
+//        Nota de cata
+        Label notaCata = new Label("Nota de cata de bodega +");
+        notaCata.getStyleClass().add("item-plus");
 
-        Optional<Varietal> varietalOptional = v.getVarietales()
-                .stream()
-                .max(Comparator.comparingDouble(Varietal::getPorcentajeComposicion));
+        VBox notaCataVBox = new VBox();
+        Text notaCataBodega = new Text(v.getNotaCataDeBodega());
+        notaCataVBox.getStyleClass().add("info-vino");
+        notaCataBodega.setWrappingWidth(320);
+        notaCataVBox.getChildren().add(notaCataBodega);
 
-        String varietal;
-        if (varietalOptional.isPresent()) {
-            varietal = varietalOptional.get().getTipoUva().getNombre();
-        } else {
-            varietal = "No se puedo cargar el varietal";
-        }
+        notaCata.setOnMouseClicked(
+                e -> {
+                    if (card.getChildren().contains(notaCataVBox)) {
+                        card.getChildren().remove(notaCataVBox);
+                        notaCata.getStyleClass().remove("item-select");
+                        notaCata.setText("Nota de cata de bodega +");
 
 
-        Label varietalPrincipal = new Label(varietal + " +");
+                    } else {
+                        card.getChildren().add(card.getChildren().indexOf(notaCata) + 1, notaCataVBox);
+                        notaCata.getStyleClass().add("item-select");
+
+                        notaCata.setText("Nota de cata de bodega -");
+                    }
+                }
+        );
+
+        Label varietalPrincipal = new Label(v.getVarietalPrincipal() + " +");
         varietalPrincipal.getStyleClass().add("item-plus");
 
 
         VBox vBoxVarietales = new VBox();
         vBoxVarietales.getStyleClass().add("info-vino");
-        for (String s : v.getVarietales().stream().map(var -> var.getDescripcion() + ": " + var.getPorcentajeComposicion() + "%").toList()) {
-            Label l = new Label(s);
+        for (String varietalInfo : v.getVarietales()) {
+            Label l = new Label(varietalInfo);
             vBoxVarietales.getChildren().add(l);
         }
 
@@ -230,13 +260,13 @@ public class PantallaActualizacionVino {
                     if (card.getChildren().contains(vBoxVarietales)) {
                         card.getChildren().remove(vBoxVarietales);
                         varietalPrincipal.getStyleClass().remove("item-select");
-                        varietalPrincipal.setText(varietal + " +");
+                        varietalPrincipal.setText(v.getVarietalPrincipal() + " +");
 
 
                     } else {
                         card.getChildren().add(2, vBoxVarietales);
                         varietalPrincipal.getStyleClass().add("item-select");
-                        varietalPrincipal.setText(varietal + " -");
+                        varietalPrincipal.setText(v.getVarietalPrincipal() + " -");
                     }
                 }
         );
@@ -245,9 +275,9 @@ public class PantallaActualizacionVino {
         VBox vBoxMaridaje = new VBox();
         vBoxMaridaje.getStyleClass().add("info-vino");
 
-        for (String s : v.getMaridajes().stream().map(var -> var.getNombre() + ": " + var.getDescripcion()).toList()) {
-            Text textMaridaje = new Text(s);
-            textMaridaje.setWrappingWidth(350);
+        for (String maridajesInfo : v.getMaridajes()) {
+            Text textMaridaje = new Text(maridajesInfo);
+            textMaridaje.setWrappingWidth(320);
             vBoxMaridaje.getChildren().add(textMaridaje);
         }
 
@@ -271,25 +301,21 @@ public class PantallaActualizacionVino {
         );
 
 
-        Label precioLbl = new Label("AR$ " + v.getPrecioARS());
+        Label precioLbl = new Label("AR$ " + v.getPrecio());
         precioLbl.getStyleClass().add("card-description");
 
         Label etiqueta = new Label(v.getImagenEtiqueta());
         etiqueta.getStyleClass().add("card-description");
 
-        card.getChildren().addAll(title, varietalPrincipal, maridajeLabel, precioLbl);
+
+        card.getChildren().addAll(title, varietalPrincipal, maridajeLabel, notaCata, precioLbl);
 
 
-        Label l = new Label();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-        String fechaAct = v.getFechaActualizacion().format(formatter);
-
-
-        l.setText(n.equals("nuevo") ? "Nuevo ingreso" : "Actualizado: " + fechaAct);
-        l.getStyleClass().add("rounded-pill");
-        l.getStyleClass().add(n.equals("nuevo") ? "nuevo" : "actualizado");
-        card.getChildren().add(l);
+        Label nuevoOActualizado = new Label();
+        nuevoOActualizado.setText(v.getFechaActualizacion() == null ? "Nuevo ingreso" : "Actualizado: " + v.getFechaActualizacion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        nuevoOActualizado.getStyleClass().add("rounded-pill");
+        nuevoOActualizado.getStyleClass().add(v.getFechaActualizacion() == null ? "nuevo" : "actualizado");
+        card.getChildren().add(nuevoOActualizado);
 
 
         tarjetaVino.getChildren().addAll(image, card);
