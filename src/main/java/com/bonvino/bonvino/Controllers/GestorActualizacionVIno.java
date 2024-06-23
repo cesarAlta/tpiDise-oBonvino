@@ -142,7 +142,8 @@ public class GestorActualizacionVIno {
             if (vinoRecibido.isActualizable()) {
                 actualizarVinoExistente(vinoRecibido, vinoActualizableList);
             } else {
-                Vino v = crearVino(vinoRecibido);
+                Vino v = crearVinoNuevo(vinoRecibido);
+
                 vinosBodegaSeleccionada.add(v);
                 creados.add(v);
             }
@@ -153,6 +154,7 @@ public class GestorActualizacionVIno {
         ordenarInformacionAMostrar();
 
     }
+
 
     /**
      * Actualiza los atributos actualizables de un vino; toma el vino recibido de la API
@@ -255,10 +257,13 @@ public class GestorActualizacionVIno {
      * @param vinoRecibido
      * @return
      */
-
-    private Vino crearVino(VinoDataDTO vinoRecibido) {
+    private Vino crearVinoNuevo(VinoDataDTO vinoRecibido) {
         Map<TipoUva, VarietalDTO> tipoUvaVarietalDTOMap = buscarTipoUva(vinoRecibido.getVarietales());
         List<Maridaje> maridaje = buscarMaridaje(vinoRecibido.getMaridajes());
+
+        return crearVino(vinoRecibido,maridaje,tipoUvaVarietalDTOMap);
+    }
+    private Vino crearVino(VinoDataDTO vinoRecibido, List<Maridaje> maridaje, Map<TipoUva, VarietalDTO> tipoUvaVarietalDTOMap) {
 
         Vino nuevoVino = new Vino(
                 vinoRecibido.getAñada(),
